@@ -270,36 +270,40 @@ function moveDisc(number, child, currDisc) {
     const id = setInterval(() => {
         if (number === 0) {
             clearInterval(id);
-            if (dicedNumber + 1 !== 6) {
-                if (nextParent && nextParent.children.length > 1 && nextParent.querySelector('img') == null) {
-                    //Check if same color disk already present then place another same color disk.
-                    let isCut = false;
-                    for (let i = 0; i < nextParent.children.length; i++) {
+            nextParentCurrLocation = nextParent.id;
+            getChildHomeLocation = players[playersColor.indexOf(child.id.slice(0, child.id.length - 1))].homePoint;
+            if (nextParentCurrLocation === getChildHomeLocation) {
+                players[playersColor.indexOf(child.id.slice(0, child.id.length - 1))][child.id].reached = true;
+            } else if (nextParent && nextParent.children.length > 1 && nextParent.querySelector('img') == null) {
+                //Check if same color disk already present then place another same color disk.
+                let isCut = false;
+                for (let i = 0; i < nextParent.children.length; i++) {
 
-                        if (!nextParent.children[i].className.includes(playersColor[turn])) {
+                    if (!nextParent.children[i].className.includes(playersColor[turn])) {
 
-                            const currId = nextParent.children[i].id;
-                            const index = playersColor.indexOf(currId.slice(0, currId.length - 1));
-                            const getSleepLocation = document.getElementById(`${players[index][currId].sleepLocation}`);
-                            getSleepLocation.appendChild(nextParent.children[i]);
-                            players[index][currId].open = false;
-                            players[index][currId].location = '';
+                        const currId = nextParent.children[i].id;
+                        const index = playersColor.indexOf(currId.slice(0, currId.length - 1));
+                        const getSleepLocation = document.getElementById(`${players[index][currId].sleepLocation}`);
+                        getSleepLocation.appendChild(nextParent.children[i]);
+                        players[index][currId].open = false;
+                        players[index][currId].location = '';
 
-                            isCut = true;
-                        }
+                        isCut = true;
                     }
-                    // if isCut is false then it means it time to turn another palyer.
-                    if (!isCut) {
-                        nextParent.appendChild(child);
-                        turn++;
-                        if (turn === 4) turn = 0;
-
-                    }
-
-                } else {
+                }
+                // if isCut is false then it means it time to turn another palyer.
+                if (!isCut) {
+                    nextParent.appendChild(child);
                     turn++;
                     if (turn === 4) turn = 0;
+
                 }
+
+            } else if (dicedNumber + 1 !== 6) {
+
+                turn++;
+                if (turn === 4) turn = 0;
+
             }
             dicedNumber = -1;
             currRolledDice.style.pointerEvents = 'auto';
@@ -334,7 +338,7 @@ function placeWaitingDiscs(row, col, className, id) {
 
             // if location is not set yet. then it means it need to start from first.
 
-            if (!players[turn][currDisc].open && dicedNumber + 1 === 6) {
+            if (!players[turn][currDisc].open && dicedNumber + 1 === 6 && !players[turn][currDisc].reached) {
 
 
                 const index = players[turn].startingPoint;
@@ -345,7 +349,7 @@ function placeWaitingDiscs(row, col, className, id) {
                 dicedNumber = -1;
                 players[turn][currDisc].open = true;
 
-            } else if (players[turn].anyDiscOpen && dicedNumber + 1 > 0 && players[turn][currDisc].open) {
+            } else if (players[turn].anyDiscOpen && dicedNumber + 1 > 0 && players[turn][currDisc].open && !players[turn][currDisc].reached) {
                 moveDisc(dicedNumber + 1, e.target, currDisc);
             }
 
