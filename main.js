@@ -18,25 +18,25 @@ const players = [
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '11-1'
+            sleepLocation: '11-1'
         },
         blue2: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '11-4'
+            sleepLocation: '11-4'
         },
         blue3: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '12-1'
+            sleepLocation: '12-1'
         },
         blue4: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '12-4'
+            sleepLocation: '12-4'
         },
         startingPoint: '13-6',
         homePoint: '8-7',
@@ -51,25 +51,25 @@ const players = [
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '2-1'
+            sleepLocation: '2-1'
         },
         red2: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '2-4'
+            sleepLocation: '2-4'
         },
         red3: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '3-1'
+            sleepLocation: '3-1'
         },
         red4: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '3-4'
+            sleepLocation: '3-4'
         },
         startingPoint: '6-1',
         homePoint: '7-6',
@@ -84,25 +84,25 @@ const players = [
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '2-10'
+            sleepLocation: '2-10'
         },
         green2: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '2-13'
+            sleepLocation: '2-13'
         },
         green3: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '3-10'
+            sleepLocation: '3-10'
         },
         green4: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '3-13'
+            sleepLocation: '3-13'
         },
         startingPoint: '1-8',
         homePoint: '6-7',
@@ -118,25 +118,25 @@ const players = [
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '11-10'
+            sleepLocation: '11-10'
         },
         orange2: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '11-13'
+            sleepLocation: '11-13'
         },
         orange3: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '12-10'
+            sleepLocation: '12-10'
         },
         orange4: {
             location: '',
             open: false,
             reached: false,
-            sleepLocation : '12-13'
+            sleepLocation: '12-13'
         },
         startingPoint: '8-13',
         homePoint: '7-8',
@@ -153,7 +153,7 @@ function createBoard(N) {
         for (let col = 0; col < N; col++) {
             const box = document.createElement('span');
             box.style.border = '1px solid grey';
-            box.textContent = `${row}-${col}`;
+            // box.textContent = `${row}-${col}`;
             box.id = `${row}-${col}`;
             board.appendChild(box);
         }
@@ -271,15 +271,29 @@ function moveDisc(number, child, currDisc) {
         if (number === 0) {
             clearInterval(id);
             if (dicedNumber + 1 !== 6) {
-                if (nextParent && nextParent.children.length > 1) {
-                    const isCut = nextParent.children[0].className.includes(playersColor[turn]);
-                    if (isCut) {
-                        nextParent.removeChild(nextParent.children[0]);
+                if (nextParent && nextParent.children.length > 1 && nextParent.querySelector('img') == null) {
+                    //Check if same color disk already present then place another same color disk.
+                    let isCut = false;
+                    for (let i = 0; i < nextParent.children.length; i++) {
 
+                        if (!nextParent.children[i].className.includes(playersColor[turn])) {
 
-                    } else {
+                            const currId = nextParent.children[i].id;
+                            const index = playersColor.indexOf(currId.slice(0, currId.length - 1));
+                            const getSleepLocation = document.getElementById(`${players[index][currId].sleepLocation}`);
+                            getSleepLocation.appendChild(nextParent.children[i]);
+                            players[index][currId].open = false;
+                            players[index][currId].location = '';
+
+                            isCut = true;
+                        }
+                    }
+                    // if isCut is false then it means it time to turn another palyer.
+                    if (!isCut) {
+                        nextParent.appendChild(child);
                         turn++;
                         if (turn === 4) turn = 0;
+
                     }
 
                 } else {
@@ -320,7 +334,7 @@ function placeWaitingDiscs(row, col, className, id) {
 
             // if location is not set yet. then it means it need to start from first.
 
-            if (!players[turn].anyDiscOpen && dicedNumber + 1 === 6) {
+            if (!players[turn][currDisc].open && dicedNumber + 1 === 6) {
 
 
                 const index = players[turn].startingPoint;
